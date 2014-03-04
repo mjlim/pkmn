@@ -1,5 +1,5 @@
 
-from flask import Flask, url_for, render_template, request, redirect, url_for
+from flask import Flask, url_for, render_template, request, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
 
 import cv2
@@ -27,12 +27,10 @@ def upload_file():
 		f = request.files['file']
 		print f.filename
 		if f and allowed_file(f.filename):
-			path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+			path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
 			print path
 			f.save(path)
-			pkimg = pkmn.pkmnimage(cv2.imread(path, 1))
-			string = '<b>BATTLE TEXT</b>:<br/>'+ "<br/>".join(pkimg.get_battletext())+ '<br/><b>MOVES</b>:<br/>'+ "<br/>".join(pkimg.get_movetext())
-			print string
+			string = pkmn_to_text(path)
 			return string
 
 	return '''
@@ -45,7 +43,38 @@ def upload_file():
       <p><input type=file name=file>
          <input type=submit value=Upload>
     </form>
+    <p>
+    <a href="/gallery">gallery of uploaded images</a>
 	'''
+
+@app.route('/img/<filename>')
+def get_image(filename):
+	i = open(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filename)))
+	if i:
+		resp = make_response(i.read())
+		resp.content_type = "image/" + filename[-3:]
+		return resp
+	else:
+		return "404 not found"
+
+@app.route('/gallery')
+def show_gallery():
+	page = ['note: every image is reparsed every pageload so please don\'t refresh a buttload','<a href="/upload">upload a new image</a>']
+	for fn in os.listdir(app.config['UPLOAD_FOLDER']):
+		try:
+			page.append('<img src="/img/'+fn+'"/><br/>' + pkmn_to_txt(os.path.join(app.config['UPLOAD_FOLDER'], fn)))
+		except:
+			page.append('<img src="/img/'+fn+'"/><br/>couldn\'t parse')
+	
+	return "<hr/>".join(page)
+
+
+
+def pkmn_to_txt(imgpath):
+	pkimg = pkmn.pkmnimage(cv2.imread(imgpath, 1))
+	string = '<b>BATTLE TEXT</b>:<br/>'+ "<br/>".join(pkimg.get_battletext())+ '<br/><b>MOVES</b>:<br/>'+ "<br/>".join(pkimg.get_movetext())
+	print string
+	return string
 
 
 if __name__ == '__main__':
