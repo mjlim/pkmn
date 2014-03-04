@@ -5,21 +5,21 @@ import sys
 import os, os.path
 #import SimpleCV
 
-CHARWINWIDTH = 8
+CHARWINWIDTH = 7
 CHARWINMOVE = 5
 
 class scalehelper:
     def __init__(self,native, scaled):
         self.native = native
         self.scaled = scaled
-        self.scaling_factor = (int(scaled[0] / GBARES[0]), int(scaled[1] / GBARES[1]))
+        self.scaling_factor = (scaled[0] / GBARES[0], scaled[1] / GBARES[1])
         print "SF:", self.scaling_factor
     def scalecoords(self,coords):
-        return (self.scaling_factor[0] * coords[0], self.scaling_factor[1] * coords[1])
+        return (int(self.scaling_factor[0] * coords[0]), int(self.scaling_factor[1] * coords[1]))
     def scalerect(self,rect):
         return (self.scalecoords(rect[0]), self.scalecoords(rect[1]))
     def scalex(self,num):
-        return self.scaling_factor[0] * num
+        return int(self.scaling_factor[0] * num)
 
 def id_letter(img):
     #identify best letter match in a region
@@ -41,7 +41,7 @@ def id_letter(img):
 
     cv2.rectangle(img, minLoc, (0,0), -1)
 
-    if smallest not in [' ', '']:
+    if smallest not in [' ', ''] and False:
         cv2.imshow('image',img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -59,9 +59,9 @@ def read_line(imgline):
     pos = 0
     chars = []
     while pos < linewidth - CHARWINWIDTH:
-        letter = id_letter(cropimg(imgline,((pos,0),(pos + CHARWINWIDTH, lineheight))))
+        letter = id_letter(cropimg(imgline,((max(pos-3,0),0),(pos + CHARWINWIDTH, lineheight))))
         chars.append(letter[0])
-        print "".join(chars)
+        #print "".join(chars)
         pos += letter[1]
 
     return chars
@@ -75,21 +75,11 @@ def cropimg(img,bounds):
 GBARES = (240,160)
 
 img = cv2.imread(sys.argv[1], 1)
-
-scalehelper = scalehelper(GBARES, (img.shape[1], img.shape[0]))
-
-# update charwin vars
-CHARWINWIDTH = scalehelper.scalex(CHARWINWIDTH)
-CHARWINMOVE = scalehelper.scalex(CHARWINMOVE)
-
+img = cv2.resize(img, GBARES)
 
 letters = []
 for limg in os.listdir('letters/battletext'):
     letterimg = cv2.imread('letters/battletext/' + limg, 1)
-    letter_oldsize = (letterimg.shape[1], letterimg.shape[0])
-    letter_newsize = scalehelper.scalecoords(letter_oldsize)
-    print letter_oldsize, letter_newsize
-    letterimg = cv2.resize(letterimg, letter_newsize)
 
     # TODO: this is bad, fix it
     if limg[:3] == 'cap':
@@ -102,13 +92,10 @@ for limg in os.listdir('letters/battletext'):
 
 #textbox_bounds = ((8,120),(230,152))
 #textbox_bounds = ((8,123),(230,138))
-textbox_bounds = ((10,123),(230,138))
-sc_tb_bounds = scalehelper.scalerect(textbox_bounds)
+textbox_bounds = ((10,122),(230,122+16))
 
-line2_bounds = ((9,138),(230,152))
-l2_tb_bounds = scalehelper.scalerect(line2_bounds)
+line2_bounds = ((10,138),(230,138+16))
 
-print sc_tb_bounds
 
 #template = 
 # resize template to match
@@ -128,10 +115,11 @@ print sc_tb_bounds
 
 #cv2.rectangle(img, minLoc, (0,0), -1)
 
-print read_line(cropimg(img, sc_tb_bounds))
-print read_line(cropimg(img, l2_tb_bounds))
+print "".join(read_line(cropimg(img, textbox_bounds)))
+print "".join(read_line(cropimg(img, line2_bounds)))
 #for i in letters:
     #cv2.imshow('template'+i[0],i[1])
-cv2.imshow('image',cropimg(img,l2_tb_bounds))
+cv2.imshow('image',img)
+#cv2.imshow('image',cropimg(img,l2_tb_bounds))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
