@@ -95,21 +95,22 @@ class pkmnimage:
     def get_movetext(self):
         # return all moves in the move selection screen
         move_bounds = [((16,125),(80,133)), ((88,125),(152,133)), ((16,141),(80,149)), ((88,141),(152,149))]
-        moves = [pkimg.get_text_in_region(bound, 'movetext') for bound in move_bounds]
+        moves = [self.get_text_in_region(bound, 'movetext') for bound in move_bounds]
         return moves
 
 
 
 
-pkimg = pkmnimage(cv2.imread(sys.argv[1], 1))
+if __name__ == '__main__':
+	pkimg = pkmnimage(cv2.imread(sys.argv[1], 1))
 
-#textbox_bounds = ((8,120),(230,152))
-#textbox_bounds = ((8,123),(230,138))
+	#textbox_bounds = ((8,120),(230,152))
+	#textbox_bounds = ((8,123),(230,138))
 
-print "BATTLE TEXT:", pkimg.get_battletext()
-print "MOVES:", pkimg.get_movetext()
+	print "BATTLE TEXT:", pkimg.get_battletext()
+	print "MOVES:", pkimg.get_movetext()
 
-#cv2.imshow('image',pkimg.img)
-#cv2.imshow('image',cropimg(img,l2_tb_bounds))
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+	#cv2.imshow('image',pkimg.img)
+	#cv2.imshow('image',cropimg(img,l2_tb_bounds))
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
