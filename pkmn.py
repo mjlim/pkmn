@@ -35,8 +35,7 @@ class pkmnimage:
                     self.letters[lettermap].append((limg[:-4], letterimg))
 
     def get_text_in_region(self, bounds, lettermap):
-        #line = self.new_read_line(self.cropimg(self.img, bounds), lettermap, self.chartextcolor[lettermap])
-        line = self.read_line(self.cropimg(self.img, bounds), lettermap)
+        line = self.read_line(self.cropimg(self.img, bounds), lettermap, self.chartextcolor[lettermap])
         return "".join(line)
 
 
