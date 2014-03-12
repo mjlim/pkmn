@@ -8,6 +8,7 @@ import time
 CHARWINWIDTH = 7
 CHARWINMOVE = 5
 SPACE_THRESHOLD = 3 # a space of 3 pixels wide or longer without any text pixels detected is considered a space
+COLOR_THRESHOLD = 15
 
 GBARES = (240,160)
 
@@ -84,7 +85,7 @@ class pkmnimage:
             # scan this column for text color pixels.
             num_txpx = 0 # number of text colored pixels found
             for y in range(0,lineheight):
-                if (imgline[y][right] == textcolor).all():
+                if (abs(imgline[y][right] - textcolor) < COLOR_THRESHOLD).all():
                     num_txpx += 1
             if num_txpx == 0:
                 if prev_num_txpx > 0: # previous column had some text pixels in it, so this is column terminates that character
