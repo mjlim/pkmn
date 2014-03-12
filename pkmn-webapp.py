@@ -6,6 +6,7 @@ import cv2
 
 import os
 import pkmn
+import time
 
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = set(['png','gif','jpg','jpeg'])
@@ -57,24 +58,29 @@ def get_image(filename):
 	else:
 		return "404 not found"
 
-@app.route('/gallery')
-def show_gallery():
-	page = ['note: every image is reparsed every pageload so please don\'t refresh a buttload','<a href="/upload">upload a new image</a>']
-	for fn in os.listdir(app.config['UPLOAD_FOLDER']):
-		try:
-			page.append('<img src="/img/'+fn+'"/><br/>' + pkmn_to_txt(os.path.join(app.config['UPLOAD_FOLDER'], fn)))
-		except:
-			page.append('<img src="/img/'+fn+'"/><br/>couldn\'t parse')
-	
-	return "<hr/>".join(page)
-
-
-
 def pkmn_to_txt(imgpath):
 	pkimg = pkmn.pkmnimage(cv2.imread(imgpath, 1))
 	string = '<b>BATTLE TEXT</b>:<br/>'+ "<br/>".join(pkimg.get_battletext())+ '<br/><b>MOVES</b>:<br/>'+ "<br/>".join(pkimg.get_movetext())
 	print string
 	return string
+
+@app.route('/gallery')
+def show_gallery():
+	page = ['note: every image is reparsed every pageload so please don\'t refresh a buttload','<a href="/upload">upload a new image</a>']
+	for fn in os.listdir(app.config['UPLOAD_FOLDER']):
+		try:
+			start = time.clock()
+			text = pkmn_to_txt(os.path.join(app.config['UPLOAD_FOLDER'], fn))
+			end = time.clock()
+			page.append('<img src="/img/{}"/><br/>{}<br/>time: {}s'.format(fn, text,(end-start)))
+		except Exception as e:
+			page.append('<img src="/img/{}"/><br/>couldn\'t parse ({})'.format(fn, e))
+			print e
+	
+	return "<hr/>".join(page)
+
+
+
 
 
 if __name__ == '__main__':
