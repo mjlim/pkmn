@@ -8,8 +8,9 @@ import os
 import pkmn
 import time
 
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads/')
 ALLOWED_EXTENSIONS = set(['png','gif','jpg','jpeg'])
+URL_PATH = '/pkmn'
 
 def allowed_file(filename):
 	return '.' in filename and \
@@ -72,9 +73,9 @@ def show_gallery():
 			start = time.clock()
 			text = pkmn_to_txt(os.path.join(app.config['UPLOAD_FOLDER'], fn))
 			end = time.clock()
-			page.append('<img src="/img/{}"/><br/>{}<br/>time: {}s'.format(fn, text,(end-start)))
+			page.append('<img src="{}/img/{}"/><br/>{}<br/>time: {}s'.format(URL_PATH, fn, text,(end-start)))
 		except Exception as e:
-			page.append('<img src="/img/{}"/><br/>couldn\'t parse ({})'.format(fn, e))
+			page.append('<img src="{}/img/{}"/><br/>couldn\'t parse ({})'.format(URL_PATH, fn, e))
 			print e
 	
 	return "<hr/>".join(page)

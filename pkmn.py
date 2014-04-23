@@ -12,6 +12,8 @@ COLOR_THRESHOLD = 15
 
 GBARES = (240,160)
 
+thispath = os.path.dirname(__file__)
+
 class pkmnimage:
     overridechars = {'period': '.', 'questionmark': '?', 'space': ' ', 'exclamationmark': '!', 'apostrophe':"'", 'hyphen': '-'}
     def __init__(self, image):
@@ -23,10 +25,10 @@ class pkmnimage:
         self.chartextcolor = {'battletext': np.array([255,255,255]), 'movetext': np.array([74,73,74])}
 
     def initletters(self):
-        for lettermap in os.listdir('letters/'):
+        for lettermap in os.listdir(os.path.join(thispath, 'letters/')):
             self.letters[lettermap] = []
-            for limg in os.listdir('letters/' + lettermap + '/'):
-                letterimg = cv2.imread('letters/' + lettermap + '/' + limg, 1)
+            for limg in os.listdir(os.path.join(thispath, 'letters/' + lettermap + '/')):
+                letterimg = cv2.imread(os.path.join(thispath, 'letters/' + lettermap + '/' + limg), 1)
                 # TODO: this is bad, fix it.
                 if limg[:3] == 'cap':
                     self.letters[lettermap].append((limg[3:-4], letterimg))
